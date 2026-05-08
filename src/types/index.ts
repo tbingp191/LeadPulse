@@ -11,6 +11,10 @@ export interface Lead {
   createdAt: any; // Timestamp
   updatedAt?: any;
   lastMessageSent?: any;
+  industry?: string;
+  products?: string;
+  description?: string;
+  scale?: string;
 }
 
 export interface Salesperson {

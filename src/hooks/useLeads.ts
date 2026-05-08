@@ -47,21 +47,6 @@ export function useLeads() {
         timestamp: serverTimestamp(),
       });
 
-      // Simulation: Automatically send WhatsApp message
-      setTimeout(async () => {
-        await updateDoc(doc(db, "leads", docRef.id), {
-          lastMessageSent: serverTimestamp(),
-          status: 'contacted'
-        });
-        
-        await addDoc(collection(db, `leads/${docRef.id}/activities`), {
-          leadId: docRef.id,
-          type: 'whatsapp',
-          content: 'Auto-message sent: "Hi! Thanks for your interest. How can we help you today?"',
-          timestamp: serverTimestamp(),
-        });
-      }, 3000);
-
       return docRef.id;
     } catch (e) {
       console.error("Error adding lead:", e);

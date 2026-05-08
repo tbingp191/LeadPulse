@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   BarChart3, 
@@ -12,11 +12,16 @@ import {
   Search,
   Menu,
   X,
-  LogOut
+  LogOut,
+  Zap,
+  ShieldCheck
 } from "lucide-react";
 import { cn } from "../lib/utils";
 import { auth } from "../lib/firebase";
 import { signOut } from "firebase/auth";
+import { useBranding } from "../BrandingContext";
+
+import { TrialBanner } from "./TrialBanner";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -25,16 +30,25 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { branding } = useBranding();
   const user = auth.currentUser;
 
-  const navItems = [
-    { icon: Home, label: "Dashboard", path: "/" },
-    { icon: Filter, label: "Pipeline", path: "/pipeline" },
-    { icon: Users, label: "Sales Team", path: "/team" },
-    { icon: MessageSquare, label: "Messages", path: "/messages" },
-    { icon: BarChart3, label: "Analytics", path: "/analytics" },
-    { icon: Settings, label: "Settings", path: "/settings" },
-  ];
+  const isAdmin = user?.email === "shwetaarenaanimationngp@gmail.com";
+
+  const navItems = isAdmin 
+    ? [
+        { icon: ShieldCheck, label: "Admin Console", path: "/admin" },
+        { icon: Home, label: "App View", path: "/dashboard" },
+        { icon: Settings, label: "Settings", path: "/settings" },
+      ]
+    : [
+        { icon: Home, label: "Dashboard", path: "/dashboard" },
+        { icon: Filter, label: "Pipeline", path: "/pipeline" },
+        { icon: Users, label: "Sales Team", path: "/team" },
+        { icon: Zap, label: "Marketing", path: "/marketing" },
+        { icon: MessageSquare, label: "Inbox", path: "/inbox" },
+        { icon: Settings, label: "Settings", path: "/settings" },
+      ];
 
   const handleLogout = () => {
     signOut(auth);
@@ -57,8 +71,14 @@ export function Layout({ children }: LayoutProps) {
       )}>
         <div className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="LeadPulse Logo" className="h-10 w-auto" />
-            <h1 className="text-xl font-bold text-slate-800 tracking-tight">LeadPulse</h1>
+            {branding.logo ? (
+              <img src={branding.logo} alt="Logo" className="w-10 h-10 object-contain rounded-xl" referrerPolicy="no-referrer" />
+            ) : (
+              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                {branding.name.charAt(0)}
+              </div>
+            )}
+            <h1 className="text-xl font-bold text-slate-800 tracking-tight">{branding.name}</h1>
           </div>
           <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-slate-400">
             <X size={20} />
@@ -88,6 +108,13 @@ export function Layout({ children }: LayoutProps) {
         </nav>
 
         <div className="p-4 border-t border-slate-100 flex flex-col gap-2">
+          <div className="px-3 py-2 bg-slate-50 rounded-lg border border-slate-100 mb-2">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Support</p>
+            <p className="text-xs font-semibold text-slate-700">{branding.phone}</p>
+            <p className="text-[10px] text-slate-500 truncate">{branding.email}</p>
+          </div>
+
+          
           <button 
             onClick={handleLogout}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
@@ -152,6 +179,7 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-4 lg:p-8">
+          {!isAdmin && <TrialBanner />}
           {children}
         </div>
       </main>

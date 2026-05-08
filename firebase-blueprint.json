@@ -41,9 +41,26 @@
         "performedBy": { "type": "string" }
       },
       "required": ["leadId", "type", "content", "timestamp"]
+    },
+    "users": {
+      "title": "User",
+      "description": "App user details and subscription status",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "trialEndsAt": { "type": "string", "format": "date-time" },
+        "isSubscriptionActive": { "type": "boolean" },
+        "whatsappGreeting": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "trialEndsAt", "isSubscriptionActive"]
     }
   },
   "firestore": {
+    "users": {
+      "schema": "users",
+      "description": "Collection of app users with subscription data"
+    },
     "leads": {
       "schema": "leads",
       "description": "Collection of business leads"

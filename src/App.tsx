@@ -6,9 +6,14 @@ import { Layout } from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Pipeline from "./pages/Pipeline";
 import Team from "./pages/Team";
+import Admin from "./pages/Admin";
+import Settings from "./pages/Settings";
+import Inbox from "./pages/Inbox";
 import Login from "./pages/Login";
-
+import Signup from "./pages/Signup";
 import Marketing from "./pages/Marketing";
+import Landing from "./pages/Landing";
+import { BrandingProvider } from "./BrandingContext";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -29,29 +34,47 @@ export default function App() {
     );
   }
 
-  // Marketing page should be accessible to all
   return (
     <Router>
-      <Routes>
-        <Route path="/overview" element={<Marketing />} />
-        {user ? (
-          <Route path="/*" element={
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/pipeline" element={<Pipeline />} />
-                <Route path="/team" element={<Team />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Layout>
-          } />
-        ) : (
-          <>
-            <Route path="/login" element={<Login />} />
-            <Route path="*" element={<Marketing />} />
-          </>
-        )}
-      </Routes>
+      <BrandingProvider>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
+          <Route path="/signup" element={user ? <Navigate to="/dashboard" replace /> : <Signup />} />
+          
+          {/* Protected App Routes */}
+          <Route 
+            path="/dashboard" 
+            element={user ? <Layout><Dashboard /></Layout> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/pipeline" 
+            element={user ? <Layout><Pipeline /></Layout> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/team" 
+            element={user ? <Layout><Team /></Layout> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/admin" 
+            element={user ? <Layout><Admin /></Layout> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/settings" 
+            element={user ? <Layout><Settings /></Layout> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/inbox" 
+            element={user ? <Layout><Inbox /></Layout> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/marketing" 
+            element={user ? <Layout><Marketing /></Layout> : <Navigate to="/login" />} 
+          />
+
+          <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} replace />} />
+        </Routes>
+      </BrandingProvider>
     </Router>
   );
 }

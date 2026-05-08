@@ -23,6 +23,13 @@ service cloud.firestore {
       return resource.data;
     }
 
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'shwetaarenaanimationngp@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
@@ -35,10 +42,18 @@ service cloud.firestore {
         && data.createdAt is timestamp;
     }
 
+    // Admins Collection
+    match /admins/{userId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only manageable via console or service account
+    }
+
     // Leads Collection
     match /leads/{leadId} {
       allow get: if isSignedIn();
-      allow list: if isSignedIn(); // In a real app, restrict to assigned leads or admins
+      allow list: if isSignedIn(); 
+      
+      allow write: if isAdmin();
       
       allow create: if isSignedIn() 
         && isValidLead(incoming())
@@ -63,6 +78,19 @@ service cloud.firestore {
           && incoming().leadId == leadId
           && incoming().timestamp == request.time;
       }
+    }
+
+    // Users Collection (Subscriptions & Trials)
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId)
+        && incoming().email == request.auth.token.email
+        && incoming().createdAt == request.time
+        && incoming().isSubscriptionActive == true;
+      allow update: if (isOwner(userId) || isAdmin())
+        && incoming().email == existing().email
+        && incoming().createdAt == existing().createdAt;
     }
 
     // Salespersons (Profiles)
