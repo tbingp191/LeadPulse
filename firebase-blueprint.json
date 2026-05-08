@@ -1,0 +1,60 @@
+{
+  "entities": {
+    "leads": {
+      "title": "Lead",
+      "description": "Represents a potential customer",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "source": { "type": "string", "description": "e.g., Facebook, Web, LinkedIn" },
+        "status": { "type": "string", "enum": ["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"] },
+        "assignedTo": { "type": "string", "description": "UID of the salesperson" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "lastMessageSent": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "status", "createdAt"]
+    },
+    "salespersons": {
+      "title": "Salesperson",
+      "description": "Team member responsible for leads",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "avatar": { "type": "string" },
+        "role": { "type": "string" }
+      },
+      "required": ["name", "email"]
+    },
+    "activities": {
+      "title": "Activity",
+      "description": "History of interactions with a lead",
+      "type": "object",
+      "properties": {
+        "leadId": { "type": "string" },
+        "type": { "type": "string", "enum": ["system", "whatsapp", "call", "note"] },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "performedBy": { "type": "string" }
+      },
+      "required": ["leadId", "type", "content", "timestamp"]
+    }
+  },
+  "firestore": {
+    "leads": {
+      "schema": "leads",
+      "description": "Collection of business leads"
+    },
+    "salespersons": {
+      "schema": "salespersons",
+      "description": "Collection of sales team members"
+    },
+    "leads/{leadId}/activities": {
+      "schema": "activities",
+      "description": "Interaction history for a specific lead"
+    }
+  }
+}
